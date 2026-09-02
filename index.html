@@ -299,7 +299,32 @@ function openCart(){document.getElementById('cart').classList.add('open');render
 function closeCart(){document.getElementById('cart').classList.remove('open')}
 function toggleSearch(){document.getElementById('search').classList.toggle('open');document.getElementById('searchInput').focus()}
 function filterProducts(q){const x=q.toLowerCase();render(products.filter(p=>p.name.toLowerCase().includes(x)))}
-function checkout(){if(!cart.length){alert('Кошик порожній');return} alert('Демо-оформлення. Тут можна підключити Nova Poshta, WayForPay, LiqPay або іншу оплату.');}
+function checkout(){
+  if(!cart.length){
+    alert('Кошик порожній');
+    return;
+  }
+
+  const items = cart.map(i =>
+    `• ${i.product.name} — розмір ${i.size} — ${i.qty} шт. — ${i.product.price * i.qty} грн`
+  ).join('\n');
+
+  const total = cart.reduce(
+    (sum, i) => sum + i.product.price * i.qty,
+    0
+  );
+
+  const message =
+    `Привіт! Хочу оформити замовлення у Florence Shop.\n\n` +
+    `${items}\n\n` +
+    `Разом: ${total} грн\n\n` +
+    `Підкажіть, будь ласка, реквізити для оплати.`;
+
+  const telegramUrl =
+    `https://t.me/florence_pay?text=${encodeURIComponent(message)}`;
+
+  window.location.href = telegramUrl;
+ }
 render();
 </script>
 </body>
