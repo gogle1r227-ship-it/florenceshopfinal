@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>florenceshop — streetwear</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f3;color:#111}
+button,input{font:inherit}
+.header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid #ddd}
+.nav{height:64px;display:flex;align-items:center;justify-content:space-between;max-width:1180px;margin:auto;padding:0 22px}
+.logo{font-size:24px;font-weight:800;letter-spacing:-1px}
+.navlinks{display:flex;gap:26px;font-size:14px}
+.navlinks a{color:#111;text-decoration:none}
+.actions{display:flex;gap:10px}
+.iconbtn{width:40px;height:40px;border:1px solid #ddd;background:white;border-radius:50%;cursor:pointer}
+.hero{max-width:1180px;margin:0 auto;padding:70px 22px 35px}
+.hero h1{font-size:clamp(42px,7vw,82px);line-height:.9;letter-spacing:-4px;margin:0 0 20px}
+.hero p{max-width:520px;color:#666;line-height:1.6;margin:0}
+.toolbar{max-width:1180px;margin:auto;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ddd}
+.grid{max-width:1180px;margin:auto;padding:10px 22px 70px;display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.card{background:#fff;border:1px solid #ddd;border-radius:14px;overflow:hidden;cursor:pointer;transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 30px #00000010}
+.card img{width:100%;aspect-ratio:1/1.12;object-fit:cover;display:block}
+.info{padding:18px}
+.row{display:flex;justify-content:space-between;gap:12px}
+.name{font-weight:700;font-size:18px}
+.price{font-weight:700;font-size:18px}
+.meta{color:#777;font-size:13px;margin-top:7px}
+.modal{position:fixed;inset:0;background:#0008;z-index:50;display:none;overflow:auto;padding:22px}
+.modal.open{display:flex;align-items:center;justify-content:center}
+.sheet{background:#fff;max-width:980px;width:100%;border-radius:18px;overflow:hidden;position:relative}
+.close{position:absolute;right:16px;top:14px;width:42px;height:42px;border:0;background:#fff;border-radius:50%;font-size:28px;z-index:2;cursor:pointer}
+.product{display:grid;grid-template-columns:1.05fr .95fr}
+.product img{width:100%;height:100%;min-height:520px;object-fit:cover}
+.details{padding:48px 38px}
+.details h2{font-size:32px;margin:0 0 8px;letter-spacing:-1px}
+.id{color:#888;font-size:13px;margin-bottom:30px}
+.bigprice{font-size:28px;font-weight:800;margin:20px 0 28px}
+.label{font-size:13px;font-weight:700;margin:18px 0 9px}
+.sizes{display:flex;gap:8px;flex-wrap:wrap}
+.size{min-width:58px;padding:13px 17px;border:1px solid #ccc;background:#fff;border-radius:8px;cursor:pointer}
+.size.selected{background:#111;color:#fff;border-color:#111}
+.qty{display:flex;align-items:center;gap:14px;margin:18px 0}
+.qty button{width:38px;height:38px;border:1px solid #ccc;background:white;border-radius:8px;cursor:pointer}
+.add{width:100%;padding:16px;border:0;border-radius:9px;background:#000;color:#fff;font-weight:700;cursor:pointer;margin-top:10px}
+.desc{margin-top:30px;padding-top:22px;border-top:1px solid #ddd;color:#555;line-height:1.6}
+.float{position:fixed;right:20px;bottom:20px;z-index:30;width:54px;height:54px;border:0;border-radius:50%;background:#fff;box-shadow:0 5px 25px #0003;font-size:24px;cursor:pointer}
+.cartpanel{position:fixed;right:-420px;top:0;height:100%;width:min(420px,100%);background:white;z-index:60;box-shadow:-10px 0 40px #0002;padding:25px;transition:.25s}
+.cartpanel.open{right:0}
+.carthead{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ddd;padding-bottom:18px}
+.cartitem{display:flex;gap:12px;padding:18px 0;border-bottom:1px solid #eee}
+.cartitem img{width:75px;height:75px;object-fit:cover;border-radius:8px}
+.cartitem small{color:#777}
+.empty{color:#777;padding:30px 0}
+.total{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin-top:20px}
+.search{display:none;position:absolute;top:64px;left:0;right:0;background:white;border-bottom:1px solid #ddd;padding:15px 22px}
+.search.open{display:block}
+.search input{width:100%;max-width:1180px;display:block;margin:auto;padding:13px 16px;border:1px solid #ccc;border-radius:9px;outline:none}
+@media(max-width:720px){
+ .nav{padding:0 14px} .navlinks{display:none}
+ .hero{padding:48px 16px 25px} .hero h1{letter-spacing:-2.5px}
+ .toolbar{padding:18px 16px} .grid{grid-template-columns:1fr;padding:8px 16px 50px}
+ .modal{padding:0} .sheet{border-radius:0;min-height:100%}
+ .product{grid-template-columns:1fr} .product img{min-height:0;aspect-ratio:1/1.05}
+ .details{padding:28px 22px 45px} .details h2{font-size:27px}
+}
+
+/* --- Florence visual refresh --- */
+:root{--ink:#0b0b0b;--paper:#f5f5f3;--line:#dededb}
+body{background:var(--paper);color:var(--ink)}
+.header{transition:box-shadow .35s ease,background .35s ease}
+.nav{height:70px}
+.logo{font-size:25px}
+.hero{min-height:560px;display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;padding-top:70px;padding-bottom:70px}
+.hero-copy{position:relative;z-index:2}
+.eyebrow,.section-kicker{display:block;font-size:11px;font-weight:800;letter-spacing:.16em;color:#777;margin-bottom:18px}
+.hero h1{font-size:clamp(58px,8.3vw,108px);letter-spacing:-6px;margin:0 0 28px}
+.hero h1 span{color:#777}
+.hero p{font-size:16px;max-width:500px}
+.hero-cta{display:inline-flex;align-items:center;gap:22px;margin-top:30px;padding:15px 19px;background:#111;color:#fff;text-decoration:none;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.08em}
+.hero-cta span{font-size:19px;line-height:0;transition:transform .3s ease}
+.hero-cta:hover span{transform:translate(4px,4px)}
+.hero-visual{position:relative;height:500px;max-width:520px;width:100%;justify-self:end}
+.hero-img{position:absolute;object-fit:cover;border-radius:18px;box-shadow:0 20px 50px #00000018}
+.hero-img-a{width:72%;height:82%;right:0;top:0}
+.hero-img-b{width:54%;height:58%;left:0;bottom:0}
+.hero-tag{position:absolute;right:12%;bottom:8%;background:#fff;border:1px solid #ddd;border-radius:50%;width:88px;height:88px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;font-weight:800;letter-spacing:.08em;line-height:1.4;box-shadow:0 10px 30px #00000018}
+.toolbar{padding-top:30px;padding-bottom:20px}
+.toolbar strong{display:block;font-size:30px;letter-spacing:-1px;margin-top:3px}
+.section-kicker{margin-bottom:0}
+.grid{padding-top:18px}
+.card{border-radius:18px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease}
+.card img{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.card:hover img{transform:scale(1.035)}
+.info{padding:17px 18px 19px}
+.name{font-size:16px}
+.price{font-size:16px}
+.meta{font-size:12px}
+.modal{backdrop-filter:blur(5px)}
+.sheet{box-shadow:0 25px 80px #00000025}
+.modal.open .sheet{animation:sheetIn .35s cubic-bezier(.2,.8,.2,1)}
+.cartpanel.open{animation:cartIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes sheetIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes cartIn{from{transform:translateX(25px);opacity:.7}to{transform:none;opacity:1}}
+@media(max-width:720px){
+ .nav{height:62px}
+ .hero{min-height:auto;grid-template-columns:1fr;gap:30px;padding:42px 16px 38px}
+ .hero h1{font-size:clamp(48px,15vw,72px);letter-spacing:-4px;margin-bottom:20px}
+ .hero p{font-size:14px}
+ .hero-cta{margin-top:24px}
+ .hero-visual{height:360px;max-width:none}
+ .hero-img-a{width:70%;height:82%}
+ .hero-img-b{width:58%;height:60%}
+ .hero-tag{width:70px;height:70px;font-size:8px;right:7%;bottom:7%}
+ .toolbar{padding:22px 16px 15px}
+ .toolbar strong{font-size:24px}
+ .grid{padding:8px 16px 50px;gap:12px}
+ .card{border-radius:14px}
+ .info{padding:14px}
+ .name,.price{font-size:14px}
+}
+@media(min-width:721px){.card{opacity:0;animation:cardIn .55s ease forwards}.card:nth-child(2){animation-delay:.04s}.card:nth-child(3){animation-delay:.08s}.card:nth-child(4){animation-delay:.12s}.card:nth-child(5){animation-delay:.16s}.card:nth-child(6){animation-delay:.20s}.card:nth-child(7){animation-delay:.24s}.card:nth-child(8){animation-delay:.28s}.card:nth-child(9){animation-delay:.32s}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+</style>
+
+<style id="florence-responsive-enhancements">
+/* Florence Shop — responsive and smooth UI enhancements */
+html { scroll-behavior: smooth; }
+body { overflow-x: hidden; }
+img { max-width: 100%; height: auto; }
+
+@media (max-width: 768px) {
+  .container, .wrapper, main, header, footer {
+    max-width: 100%;
+  }
+  body {
+    font-size: 15px;
+  }
+  h1 {
+    font-size: clamp(28px, 8vw, 42px);
+    line-height: 1.1;
+  }
+  h2 {
+    font-size: clamp(23px, 6vw, 34px);
+  }
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .grid, .products, .product-grid, .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  nav ul {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .hero {
+    min-height: 70vh;
+    padding: 48px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid, .products, .product-grid, .cards {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    min-height: 62vh;
+    padding: 38px 15px;
+  }
+  .hero h1 {
+    font-size: 32px;
+  }
+}
+
+/* Smooth interactions */
+a, button, input, select, textarea, .card, .product, img {
+  transition: transform .25s ease, opacity .25s ease, box-shadow .25s ease,
+              background-color .25s ease, color .25s ease, border-color .25s ease;
+}
+a:hover, button:hover {
+  transform: translateY(-1px);
+}
+.card:hover, .product:hover {
+  transform: translateY(-4px);
+}
+img:hover {
+  transform: scale(1.015);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+
+</head>
+<body>
+<header class="header">
+  <nav class="nav">
+    <div class="logo">florenceshop</div>
+    <div class="navlinks"><a href="#shop">SHOP</a><a href="#about">ABOUT</a><a href="#contact">CONTACT</a></div>
+    <div class="actions">
+      <button class="iconbtn" onclick="toggleSearch()" aria-label="Пошук">⌕</button>
+      <button class="iconbtn" onclick="openCart()" aria-label="Корзина">🛒</button>
+    </div>
+  </nav>
+  <div id="search" class="search"><input id="searchInput" placeholder="Пошук товару..." oninput="filterProducts(this.value)"></div>
+</header>
+
+<section class="hero" id="about">
+  <div class="hero-copy">
+    <div class="eyebrow">NEW DROP · STREETWEAR</div>
+    <h1>FLORENCE<br><span>SHOP.</span></h1>
+    <p>Сучасний одяг без зайвого шуму. Чіткі силуети, базові кольори та речі на кожен день.</p>
+    <a class="hero-cta" href="#shop">ДИВИТИСЯ КОЛЕКЦІЮ <span>↘</span></a>
+  </div>
+  <div class="hero-visual" aria-hidden="true">
+    <img class="hero-img hero-img-a" src="images/desert-hoodie-black.jpg" alt="">
+    <img class="hero-img hero-img-b" src="images/grey-pants.jpg" alt="">
+    <div class="hero-tag">FLORENCE<br>2026</div>
+  </div>
+</section>
+
+<div class="toolbar" id="shop">
+  <div><span class="section-kicker">COLLECTION</span><strong>ALL PRODUCTS</strong></div>
+  <span id="count"></span>
+</div>
+<main class="grid" id="grid"></main>
+
+<button class="float" onclick="openCart()" aria-label="Корзина">🛒</button>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<aside class="cartpanel" id="cart">
+  <div class="carthead"><h2>Кошик</h2><button class="iconbtn" onclick="closeCart()">×</button></div>
+  <div id="cartItems"></div>
+  <div class="total"><span>Разом</span><span id="total">0 грн</span></div>
+  <button class="add" onclick="checkout()">ОФОРМИТИ ЗАМОВЛЕННЯ</button>
+</aside>
+
+<script>
+const products = [{"id": 9176, "name": "White waist pants", "price": 1150, "image": "images/white-waist-pants.jpg", "description": "Чорні штани з білим поясом та графічним принтом. Комфортна посадка на кожен день.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 2660, "name": "Flared pants grey ind", "price": 1100, "image": "images/flared-pants-grey.jpg", "description": "Сірі розкльошені штани з контрастними вставками. Мінімалістичний streetwear-силует.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 4038, "name": "Long sleeve white", "price": 1050, "image": "images/long-sleeve-white.jpg", "description": "Білий лонгслів з графічним принтом на рукавах.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 3111, "name": "Long sleeve black", "price": 1050, "image": "images/long-sleeve-black.jpg", "description": "Чорний лонгслів з контрастним графічним принтом на рукавах.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 6174, "name": "Long desert black", "price": 1050, "image": "images/long-desert-black.jpg", "description": "Чорний лонгслів у мінімалістичному streetwear-стилі з характерною фактурою та шарфом.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 8210, "name": "Grey pants", "price": 1150, "image": "images/grey-pants.jpg", "description": "Сірі штани вільного крою з графічною деталлю. Комфортна посадка.", "sizes": ["M", "L"]}, {"id": 3919, "name": "Desert hoodie grey", "price": 1400, "image": "images/desert-hoodie-grey.jpg", "description": "Сіра худі з капюшоном і кишенею кенгуру. Акцентний streetwear-силует.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 4029, "name": "Desert hoodie black", "price": 1400, "image": "images/desert-hoodie-black.jpg", "description": "Чорна худі з капюшоном, кишенею кенгуру та фірмовою графікою.", "sizes": ["XS", "S", "M", "L", "XL"]}, {"id": 1689, "name": "Zip Hoodie black", "price": 1350, "image": "images/zip-hoodie-black.jpg", "description": "Чорна худі на блискавці з контрастною графікою на рукавах.", "sizes": ["XS", "S", "M", "L", "XL"]}];
+let cart=[], selectedProduct=null, selectedSize=null, qty=1;
+
+function render(list=products){
+  document.getElementById('count').textContent=list.length+' товарів';
+  document.getElementById('grid').innerHTML=list.map(p=>`
+    <article class="card" onclick="openProduct(${p.id})">
+      <img src="${p.image}" alt="${p.name}">
+      <div class="info"><div class="row"><div class="name">${p.name}</div><div class="price">${p.price} грн</div></div>
+      <div class="meta">XS · S · M · L · XL</div></div>
+    </article>`).join('');
+}
+function openProduct(id){
+ selectedProduct=products.find(p=>p.id===id); selectedSize=null; qty=1;
+ document.getElementById('sheet').innerHTML=`
+ <button class="close" onclick="closeModal()">×</button>
+ <div class="product">
+   <img src="${selectedProduct.image}" alt="${selectedProduct.name}">
+   <div class="details">
+    <h2>${selectedProduct.name}</h2><div class="id">id: ${selectedProduct.id}</div>
+    <div class="label">РОЗМІР</div>
+    <div class="sizes">${selectedProduct.sizes.map(s=>`<button class="size" onclick="chooseSize('${s}',this)">${s}</button>`).join('')}</div>
+    <div class="bigprice">${selectedProduct.price} грн</div>
+    <div class="qty"><button onclick="changeQty(-1)">−</button><strong id="qty">1</strong><button onclick="changeQty(1)">+</button></div>
+    <button class="add" onclick="addToCart()">ДОДАТИ В КОШИК</button>
+    <div class="desc">${selectedProduct.description}</div>
+   </div>
+ </div>`;
+ document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function chooseSize(s,el){selectedSize=s;document.querySelectorAll('.size').forEach(x=>x.classList.remove('selected'));el.classList.add('selected')}
+function changeQty(n){qty=Math.max(1,qty+n);document.getElementById('qty').textContent=qty}
+function addToCart(){
+ if(!selectedSize){alert('Оберіть розмір');return}
+ cart.push({product:selectedProduct,size:selectedSize,qty});
+ closeModal();renderCart();openCart();
+}
+function renderCart(){
+ const el=document.getElementById('cartItems');
+ if(!cart.length){el.innerHTML='<div class="empty">Кошик поки порожній.</div>';document.getElementById('total').textContent='0 грн';return}
+ el.innerHTML=cart.map((i,n)=>`<div class="cartitem"><img src="${i.product.image}"><div style="flex:1"><b>${i.product.name}</b><br><small>Розмір ${i.size} · ${i.qty} шт.</small><br>${i.product.price*i.qty} грн</div><button onclick="removeItem(${n})" style="border:0;background:none;font-size:20px">×</button></div>`).join('');
+ document.getElementById('total').textContent=cart.reduce((a,i)=>a+i.product.price*i.qty,0)+' грн';
+}
+function removeItem(n){cart.splice(n,1);renderCart()}
+function openCart(){document.getElementById('cart').classList.add('open');renderCart()}
+function closeCart(){document.getElementById('cart').classList.remove('open')}
+function toggleSearch(){document.getElementById('search').classList.toggle('open');document.getElementById('searchInput').focus()}
+function filterProducts(q){const x=q.toLowerCase();render(products.filter(p=>p.name.toLowerCase().includes(x)))}
+function checkout(){if(!cart.length){alert('Кошик порожній');return} alert('Демо-оформлення. Тут можна підключити Nova Poshta, WayForPay, LiqPay або іншу оплату.');}
+render();
+</script>
+</body>
+</html>
